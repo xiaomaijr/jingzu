@@ -1,0 +1,138 @@
+
+<title>战队管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    height: 50px;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>战队管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-useradmin-formlist">
+      <div class="layui-form-item" style="display: none">
+        <div class="layui-inline">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-block">
+            <input type="text" name="title" placeholder="请输入" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="layui-card-header layuiadmin-card-header-auto">
+      <button class="layui-btn layuiadmin-btn-tags" data-type="add">添加</button>
+    </div>
+    <div class="layui-card-body">
+      <table id="LAY-app-content-tags" lay-filter="LAY-app-content-tags"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('team', layui.factory('team')).use(['admin', 'team', 'table','upload','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,form = layui.form;
+
+
+  var active = {
+    add: function(){
+      admin.popup({
+        title: '添加'
+        ,area: ['700px', '500px']
+        ,id: 'LAY-popup-content-tags'
+        ,success: function(layero, index){
+          view(this.id).render('team/tagsform').done(function(){
+            form.render(null, 'layuiadmin-form-tags');
+
+            //监听提交
+            form.on('submit(layuiadmin-app-tags-submit)', function(data){
+              var field = data.field; //获取提交的字段
+              //提交 Ajax 成功后，关闭当前弹层并重载表格
+              selfajax.ajax('TeamAdd','post',field, function(res){
+                if(!res.code){
+                  layer.msg(res.msg,{time:2000},function(){
+                    if(res.success){
+                      layui.table.reload('LAY-app-content-tags'); //重载表格
+                      layer.close(index); //执行关闭
+                    }
+                  })
+                }else{
+                  layer.msg(res.msg,{time:2000});
+                }
+              }, '',function(){
+                loading = layer.load();
+              },function () {
+                layer.close(loading);
+              });
+            });
+          });
+        }
+      });
+    }
+  }
+  //监听搜索
+  form.on('submit(LAY-user-back-search)', function(data){
+    var field = data.field;
+    //执行重载
+    table.reload('LAY-app-content-tags', {
+      where: field
+      ,url: layui.setter.www_NAME+'/admin/getBannerList?identity=1' //模拟接口
+      ,page: true
+      , loading: true                      // 开启loading
+      , cellMinWidth: 80                   // 每列最小宽度
+      , limits: [15, 30, 50]                 // 每页条数的选择项
+      , limit: 10                          // 默认每页条数
+      ,cols: [[
+        {field: 'sort', width: 100, title: '排序', sort: true}
+        ,{field: 'name', title: '轮播名', minWidth: 100}
+        ,{field: 'image', title: '队伍片', minWidth: 100, templet: '#imgTpl',style:'padding:0;min-width:150px;'}
+        ,{field: 'bname', title: '品牌', minWidth: 100}
+        ,{title: '操作', width: 150, align: 'center', fixed: 'right', toolbar: '#layuiadmin-app-cont-tagsbar'}
+      ]]
+      ,parseData: function (res) {
+        return {
+          "code": res.code, //解析接口状态
+          "msg": res.msg, //解析提示文本
+          "count": res.data.count, //解析数据长度
+          "data": res.data.data //解析数据列表
+        }
+      }, done: function (res, curr, count) {
+        $('td[data-field="image"] .layui-table-cell, .layui-table-tool-panel li').each(function () {
+          $(this).css('overflow', 'none !important');
+        })
+      }
+
+    });
+  });
+
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; height:100%;" src= {{ d.image }}>
+</script>

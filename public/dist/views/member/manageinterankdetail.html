@@ -1,0 +1,243 @@
+
+
+<title>积分详情管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    height: 50px;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>积分详情管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+          <div class="layui-form-item">
+              <div class="layui-inline">
+                  <label class="layui-form-label">日期选择</label>
+                  <div class="layui-input-inline layui-col-sm12">
+                      <input type="text" class="layui-input" name="ranktime" id="test10" autocomplete="off" placeholder=" - ">
+                  </div>
+              </div>
+              <div class="layui-inline">
+                  <label class="layui-form-label">作者类型</label>
+                  <div class="layui-input-inline">
+
+                      <select name="create_type" lay-filter="create_type" id="create_type" >
+                      </select>
+                  </div>
+              </div>
+              <div class="layui-inline">
+                  <label class="layui-form-label">内容创作者</label>
+                  <div class="layui-input-inline">
+                      <select name="create_id" lay-filter="create_id" id="create_id" lay-search="">
+                      </select>
+                  </div>
+              </div>
+              <div class="layui-inline">
+                  <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+                      <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                  </button>
+              </div>
+          </div>
+      </div>
+    <div class="layui-card-body">
+<!--      <div class="layui-btn-group demoTable">-->
+<!--        <button class="layui-btn" data-type="godepartment">部门</button>-->
+<!--        <button class="layui-btn" data-type="gocompany">公司</button>-->
+<!--      </div>-->
+    <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+<!--            <button class="layui-btn layui-btn-sm" lay-event="exportAllData">导出所有数据</button>-->
+        </div>
+    </script>
+      <table id="LAY-app-content-tags-interank-detail" lay-filter="LAY-app-content-tags-interank-detail"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+<!--        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>-->
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('member', layui.factory('member')).use(['admin', 'member', 'table','upload','selfajax','laydate'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,form = layui.form
+  ,laydate = layui.laydate;
+    //日期时间范围
+    laydate.render({
+        elem: '#test10'
+        ,type: 'date'
+        ,range: true
+    });
+  // form.render();
+  var brand;
+    //全部创作者分类
+    $.ajax({
+        url:layui.setter.www_NAME+'/admin/membertype/getTypes',
+        type:'get',
+        beforeSend:function(){
+            loading = layer.load();
+        },success:function(res){
+            console.log(res);
+            var bid=$(" input[ name='create_typecreate_type' ] ").val();
+            brand=res.data
+            $("#create_type").html('<option value="0">全部创作者分类</option>');
+            $.each(brand, function (key, val) {
+                console.log(val)
+                if(val.id !=1){
+                    var option1 = $("<option>").val(val.id).text(val.name);
+                }
+                //通过LayUI.jQuery添加列表项
+                $("#create_type").append(option1);
+            });
+            layui.form.render('select');
+        },complete:function(){
+            layer.close(loading);
+        }
+    })
+    //创作者
+    form.on('select(create_type)', function(data){
+        selfajax.ajax('/admin/membertype/getConByTypeId','get',{type_id:data.value}, function(res){
+            var bid=$(" input[ name='baid' ] ").val();
+            brand=res.data
+            $("#create_id").html('<option value="0">请输入</option>');
+            $.each(brand, function (key, val) {
+                if(bid==val.id){
+                    var option1 = $("<option selected>").val(val.id).text(val.name);
+                }else{
+                    var option1 = $("<option>").val(val.id).text(val.name);
+                }
+                //通过LayUI.jQuery添加列表项
+                $("#create_id").append(option1);
+            });
+            layui.form.render('select');
+        }, '',function(){
+            loading = layer.load();
+        },function () {
+            layer.close(loading);
+        });
+    }),
+        //监听搜索
+        form.on('submit(LAY-app-contlist-search)', function(data){
+            var field = data.field;
+            console.log(field)
+            if(field.ranktime==''){
+                layer.msg('请选择时间段');
+                return false;
+            }
+            if(field.create_type ==''||field.create_id == ''){
+                layer.msg('请选择人员');
+                return false;
+            }
+            //执行重载
+            table.render({
+                elem: '#LAY-app-content-tags-interank-detail'
+                ,url: layui.setter.www_NAME+'/admin/getMemberInteTotal' //模拟接口
+                ,where:field
+                ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+                ,defaultToolbar: ['filter']
+                ,page: true
+                , loading: true                      // 开启loading
+                , cellMinWidth: 80                   // 每列最小宽度
+                , limits: [15, 30, 50]                 // 每页条数的选择项
+                , limit: 10                          // 默认每页条数
+                ,cols: [[
+                    {field: 'username', title: '用户名', fixed: 'left', width: 100,}
+                    ,{field: 'systerm_inte_1', title: '完善信息', width: 100}
+                    ,{field: 'systerm_inte_2', title: '会员签到', width: 100}
+                    ,{field: 'systerm_inte_3', title: '内容发布-视频', width: 100}
+                    ,{field: 'systerm_inte_4', title: '内容发布-报告', width: 100}
+                    ,{field: 'systerm_inte_5', title: '评论', width: 100}
+                    ,{field: 'systerm_inte_6', title: '点赞-内容', width: 100}
+                    ,{field: 'systerm_inte_7', title: '被点赞-内容', width: 100}
+                    ,{field: 'systerm_inte_8', title: '精华知识-内容', width: 100}
+                    ,{field: 'systerm_inte_9', title: '发布话题-社区', width: 100}
+                    ,{field: 'systerm_inte_10', title: '评论-社区', width: 100}
+                    ,{field: 'systerm_inte_11', title: '点赞-社区', width: 100}
+                    ,{field: 'systerm_inte_12', title: '被点赞-社区', width: 100}
+                    ,{field: 'systerm_inte_13', title: '精华话题-社区', width: 100}
+                    ,{field: 'systerm_inte_14', title: '用户每天操作', width: 100}
+                    ,{field: 'systerm_inte_15', title: '积分', width: 100}
+                    ,{field: 'total', title: '总计', width: 100}
+                ]],
+                parseData: function (res) {
+                    return {
+                        "code": res.code, //解析接口状态
+                        "msg": res.msg, //解析提示文本
+                        "count": res.data.count, //解析数据长度
+                        "data": res.data.data //解析数据列表
+                    }
+                }, done: function (res, curr, count) {
+                    $('td[data-field="image"] .layui-table-cell, .layui-table-tool-panel li').each(function () {
+                        $(this).css('overflow', 'none !important');
+                    })
+                }
+            });
+        });
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('#downmoban').on('click',function () {
+    // layer.msg('下载吧');
+  })
+  //部门职位
+  selfajax.ajax('/admin/getMemberDpListAll','get','', function(res){
+    console.log(res);
+    var bid=$(" input[ name='braid' ] ").val();
+    brand=res.data
+    $("#department").html('<option value="0">请选择部门</option>');
+    $.each(brand, function (key, val) {
+      if(bid==val.id){
+        var option1 = $("<option selected>").val(val.id).text(val.name);
+      }else{
+        var option1 = $("<option>").val(val.id).text(val.name);
+      }
+      //通过LayUI.jQuery添加列表项
+      $("#department").append(option1);
+    });
+    layui.form.render('select');
+  },'',function(){
+    loading = layer.load();
+  },function () {
+    layer.close(loading);
+  });
+  //职位
+  form.on('select(department)', function(data){
+    selfajax.ajax('/admin/getMemberDpListAll','get',{pid:data.value}, function(res){
+      brand=res.data
+      $("#position").html('<option value="0">请选择职位</option>');
+      $.each(brand, function (key, val) {
+        var option1 = $("<option>").val(val.id).text(val.name);
+        //通过LayUI.jQuery添加列表项
+        $("#position").append(option1);
+      });
+      layui.form.render('select');
+    }, '',function(){
+      loading = layer.load();
+    },function () {
+      layer.close(loading);
+    });
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px;" src= {{ d.image }}>
+</script>

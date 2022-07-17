@@ -1,0 +1,108 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item">
+    <label class="layui-form-label">商品名称</label>
+    <div class="layui-input-inline" style="line-height: 38px;height: 38px;">
+      <script type="text/html" template>
+        {{ d.params.good_name || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">原始估价</label>
+    <div class="layui-input-inline" style="line-height: 38px;height: 38px;">
+      <script type="text/html" template>
+        {{ d.params.price || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">最终估价</label>
+    <div class="layui-input-inline" style="line-height: 38px;height: 38px;">
+      <script type="text/html" template>
+        {{ d.params.price_eval || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <div class="layui-inline">
+      <label class="layui-form-label">订单状态</label>
+      <div class="layui-input-inline">
+        <select name="status" id="statusstatus">
+        </select>
+      </div>
+    </div>
+  </div>
+  <script type="text/html" template>
+  {{# if(d.params.status==1){ }}
+  <div class="layui-form-item">
+    <label class="layui-form-label">价格</label>
+    <div class="layui-input-inline">
+        <input type="text" name="price_eval" value="{{ d.params.price_eval || '' }}" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+    </div>
+  </div>
+  {{# } else if(d.params.status==2&&d.params.user_info.share_pid!=0&&d.params.user_info.is_distribution!=1) { }}
+<!--    <div class="layui-form-item">-->
+<!--      <label class="layui-form-label">是否分销</label>-->
+<!--      <div class="layui-input-inline">-->
+<!--        <input type="checkbox" name="is_distribution" lay-skin="switch" lay-text="ON|OFF">-->
+<!--      </div>-->
+<!--    </div>-->
+    <div class="layui-form-item">
+      <label class="layui-form-label">佣金</label>
+      <div class="layui-input-inline">
+        <input type="text" name="commission" value="{{ d.params.commission || d.params.commission_def }}" lay-verify="required" placeholder="请输入" autocomplete="off" class="layui-input">
+      </div>
+    </div>
+  {{# } else { }}
+  {{# } }}
+  </script>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use('upload', function() {
+    var $ = layui.jquery
+            , upload = layui.upload;
+    //普通图片上传
+    var uploadInst = upload.render({
+      elem: '#test1'
+      , url: layui.setter.api_host+'upload'
+      , before: function (obj) {
+        //预读本地文件示例，不支持ie8
+        obj.preview(function (index, file, result) {
+          $('#demo1').attr('src', result); //图片链接（base64）
+        });
+      }
+      , done: function (res) {
+        console.log(res);
+        //如果上传失败
+        if (res.code > 0) {
+          return layer.msg('上传失败');
+        }
+        //上传成功
+        layer.msg(res.msg,{time:1000},function(){
+          if(res.success){
+            $('input[name="image"]').val(res.data.url);
+            // $('.banner_image').attr('src',res.data.url);
+          }
+        })
+      }
+      , error: function () {
+        //演示失败状态，并实现重传
+        var demoText = $('#demoText');
+        demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+        demoText.find('.demo-reload').on('click', function () {
+          uploadInst.upload();
+        });
+      }
+    });
+  });
+  </script>

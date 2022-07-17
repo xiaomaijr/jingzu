@@ -1,0 +1,96 @@
+
+<title>内容管理</title>
+<style>
+  .layui-table-cell{
+    height: auto!important;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>内容管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-inline">
+            <input type="text" name="title" id="title" placeholder="请输入名称" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline" style="display: none;">
+          <label class="layui-form-label">分类</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-verify="required">
+              <option value="0"></option>
+              <option value="1" >banner</option>
+              <option value="2" >华熙爆品</option>
+              <option value="3" >活动预告</option>
+              <option value="4" >联盟动态</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+          <button class="layui-btn" lay-event="add">添加</button>
+        </div>
+      </script>
+      <table id="LAY-app-content-tags" lay-filter="LAY-app-content-tags"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        {{#  if(d.id == '1'||d.id == '2'||d.id == '3'||d.id == '4'){ }}
+        <a class="layui-btn layui-btn-disabled layui-btn-xs"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        {{#  } else { }}
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="seec"><i class="layui-icon layui-icon-edit"></i>查看评论</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+        {{#  } }}
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('content', layui.factory('content')).use(['admin', 'content', 'table','jquery','upload','laydate','tinymce'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,upload = layui.upload
+  ,tinymce = layui.tinymce
+  ,form = layui.form;
+  var edit = tinymce.render({
+    elem: "#mytextarea"
+    , height: 600
+  });
+  form.render();
+  var active = {
+    add: function(){
+      location.hash = '/content/add';
+    }
+  }
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl1">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.image }}>
+</script>
+<script type="text/html" id="checkboxTpl">
+  <input type="checkbox" name="is_best" value="{{d.id}}" title="精华" lay-filter="lockDemo" {{ d.is_best == 1 ? 'checked' : '' }}>
+</script>

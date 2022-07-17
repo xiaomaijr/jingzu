@@ -1,0 +1,116 @@
+
+<title>活动管理</title>
+<style>
+  .layui-table-cell{
+    height: auto!important;
+    white-space: normal;
+  }
+  #select-head-img {
+    width: 100%;
+    height: 500px;
+    display: none;
+  }
+
+  .select-head-img {
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .select-head-img li {
+    width: 100%;
+    max-height: 400px;
+    margin: 10px 0;
+    text-align: center;
+  }
+
+  .select-head-img li > img {
+    width: 300px;
+    max-height: 400px;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>报名记录管理</cite></a>
+  </div>
+</div>
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+      <div class="layui-form-item" style="display: none;">
+        <div class="layui-inline" style="display: none;">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-inline">
+            <input type="text" name="title" id="title" placeholder="请输入名称" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline" style="display: none;">
+          <label class="layui-form-label">分类</label>
+          <div class="layui-input-inline">
+            <select name="type" lay-verify="required">
+              <option value="0"></option>
+              <option value="1" >精彩活动</option>
+              <option value="2" >线上赛事</option>
+              <option value="3" >培训课程</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+<!--      <script type="text/html" id="toolbarDemo">-->
+<!--        <div class="layui-btn-container">-->
+<!--          <button class="layui-btn" lay-event="add">添加</button>-->
+<!--        </div>-->
+<!--      </script>-->
+      <table id="LAY-app-content-tags-record" lay-filter="LAY-app-content-tags-record"></table>
+      <div id="select-head-img">
+        <ul class="select-head-img">
+          <li>
+          </li>
+        </ul>
+      </div>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+<!--        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>-->
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('activity', layui.factory('activity')).use(['admin', 'activity', 'table','jquery','upload','laydate','tinymce'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,upload = layui.upload
+  ,tinymce = layui.tinymce
+  ,form = layui.form;
+  var edit = tinymce.render({
+    elem: "#mytextarea"
+    , height: 600
+  });
+  form.render();
+
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.image }}>
+</script>
+<script type="text/html" id="checkboxTpl">
+  <input type="checkbox" name="is_best" value="{{d.id}}" title="精华" lay-filter="lockDemo" {{ d.is_best == 1 ? 'checked' : '' }}>
+</script>

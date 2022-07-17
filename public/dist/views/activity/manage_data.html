@@ -1,0 +1,76 @@
+
+
+<title>趋势回顾管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    height: 50px;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite id="qs">数据管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="layadmin-useradmin-formlist" style="display: none;">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">名称</label>
+          <div class="layui-input-block">
+            <input type="text" name="title" placeholder="请输入" class="layui-input">
+          </div>
+        </div>
+        <div class="layui-inline">
+          <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-user-back-search">
+            <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container" id="con-add">
+          <button class="layui-btn" lay-event="add">添加视频</button>
+          <button class="layui-btn" lay-event="addcon">添加内容</button>
+        </div>
+      </script>
+      <table id="LAY-app-content-tags-data" lay-filter="LAY-app-content-tags-data"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        {{#  if(d.type == 1){ }}
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        {{#  } else { }}
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="editcon"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        {{#  } }}
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('activitydata', layui.factory('activitydata')).use(['admin', 'laydate', 'activitydata', 'table','jquery','upload','laydate','tinymce','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,upload = layui.upload
+  ,laydate = layui.laydate
+  ,selfajax = layui.selfajax
+  ,tinymce = layui.tinymce
+  ,form = layui.form;
+
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block;  height:50px;" src= {{ d.image }}>
+</script>

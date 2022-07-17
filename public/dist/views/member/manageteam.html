@@ -1,0 +1,365 @@
+
+
+<title>用户管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    height: 50px;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>用户管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list">
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">公司</label>
+          <div class="layui-input-inline">
+          <select name="department" id="department" lay-filter="department">
+          </select>
+          </div>
+          <div class="layui-input-inline">
+            <select name="position" id="position" lay-filter="position">
+            </select>
+          </div>
+        </div>
+      <div class="layui-inline">
+        <label class="layui-form-label">用户名</label>
+        <div class="layui-input-inline">
+          <input type="text" name="username" id="username" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-inline">
+        <label class="layui-form-label">手机号</label>
+        <div class="layui-input-inline">
+          <input type="text" name="phone" id="phone" placeholder="请输入手机号"  autocomplete="off" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-inline">
+        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+          <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+        </button>
+      </div>
+      <div class="layui-card-header layuiadmin-card-header-auto">
+        <button class="layui-btn layuiadmin-btn-tags" data-type="exportFile">导出全部信息</button>
+      </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <div class="layui-btn-group demoTable">
+        <button class="layui-btn" data-type="getCheckData">分组</button>
+      </div>
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+          <button class="layui-btn layui-btn-sm" lay-event="exportAllData">导出所有数据</button>
+        </div>
+      </script>
+      <table id="LAY-app-content-tags" lay-filter="LAY-app-content-tags"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="integral"><i class="layui-icon layui-icon-edit"></i>积分明细</a>
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="con"><i class="layui-icon layui-icon-edit"></i>内容</a>
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="top"><i class="layui-icon layui-icon-edit"></i>话题</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+<script src="/static/js/xm-select.js"></script>
+<script>
+layui.use('member', layui.factory('member')).use(['admin', 'member', 'table','upload','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,form = layui.form;
+
+  form.render();
+  var brand;
+  //监听搜索
+  form.on('submit(LAY-app-contlist-search)', function(data){
+    var field = data.field;
+    if(field.phone !=''){
+      if(!(/^1[3456789]\d{9}$/.test(field.phone))){
+        layer.msg("手机号码有误，请重填");
+        return false;
+      }
+    }
+    console.log(field)
+    //执行重载
+    table.render({
+      elem: '#LAY-app-content-tags'
+      ,url: layui.setter.www_NAME+'/admin/getMemberList' //模拟接口
+      ,where:field
+      ,page: true
+      , loading: true                      // 开启loading
+      , cellMinWidth: 80                   // 每列最小宽度
+      , limits: [15, 30, 50]                 // 每页条数的选择项
+      , limit: 10                          // 默认每页条数
+      ,cols: [[
+        {type:'checkbox'}
+        // {field: 'id', width: 100, title: '用户ID', sort: true}
+        ,{field: 'nickname', title: '昵称', minWidth: 100,event: 'showself', style:'cursor: pointer;'}
+        ,{field: 'image', title: '头像', minWidth: 100, templet: '#imgTpl',style:'padding:0;'}
+        ,{field: 'phone', title: '手机', minWidth: 100}
+        ,{field: 'sex', title: '性别', width: 50,templet:function(d){
+            if(d.sex ==1){
+              return '男';
+            }else if(d.sex ==2){
+              return '女';
+            }else{
+              return '未知';
+            }
+          }}
+        ,{field: 'username', title: '真实姓名', minWidth: 100}
+        ,{field: 'company', title: '公司', minWidth: 100}
+        ,{field: 'departmentname', title: '部门', minWidth: 100}
+        ,{field: 'groupname', title: '分组', minWidth: 100}
+        ,{field: 'integral', title: '积分', minWidth: 100}
+        ,{field: 'create_time', title: '创建时间', minWidth: 100}
+        ,{title: '操作', width: 270, align: 'center', fixed: 'right', toolbar: '#layuiadmin-app-cont-tagsbar'}
+      ]],
+      parseData: function (res) {
+        return {
+          "code": res.code, //解析接口状态
+          "msg": res.msg, //解析提示文本
+          "count": res.data.count, //解析数据长度
+          "data": res.data.data //解析数据列表
+        }
+      }, done: function (res, curr, count) {
+        $('td[data-field="image"] .layui-table-cell, .layui-table-tool-panel li').each(function () {
+          $(this).css('overflow', 'none !important');
+        })
+      }
+    });
+  });
+  var active = {
+    add: function(){
+      admin.popup({
+        title: '添加用户'
+        ,area: ['500px', '400px']
+        ,id: 'LAY-popup-content-tags'
+        ,success: function(layero, index){
+          view(this.id).render('member/tagsform',brand).done(function(){
+            form.render(null, 'layuiadmin-form-tags');
+
+            //监听提交
+            form.on('submit(layuiadmin-app-tags-submit)', function(data){
+              var field = data.field; //获取提交的字段
+              //提交 Ajax 成功后，关闭当前弹层并重载表格
+              $.ajax({
+                url:'/admin/MemberAdd',
+                type:'post',
+                data:field,
+                beforeSend:function(){
+                  loading = layer.load();
+                },success:function(res){
+                  if(!res.code){
+                    layer.msg(res.msg,{time:2000},function(){
+                      if(res.success){
+                        layui.table.reload('LAY-app-content-tags'); //重载表格
+                        layer.close(index); //执行关闭
+                      }
+                    })
+                  }else{
+                    layer.msg(res.msg,{time:2000});
+                  }
+                },complete:function(){
+                  layer.close(loading);
+                }
+              })
+            });
+          });
+        }
+      });
+    }
+    ,exportFile: function(){
+      var department = $('#department').val();
+      var position =$('#position').val();
+      var username = $('#username').val();
+      var phone = $('#phone').val();
+        $.ajax({
+          url:layui.setter.www_NAME+'/admin/getMemberAll',
+          type:'get',
+          data:{
+            department:department,
+            position:position,
+            username:username,
+            phone:phone,
+          },
+          beforeSend:function(){
+            loading = layer.load();
+          },success:function(res){
+            if(!res.code){
+              table.exportFile(res.data.menu, res.data.data, 'xls');
+            }else{
+              layer.msg(res.msg,{time:2000});
+            }
+          },complete:function(){
+            layer.close(loading);
+          }
+        })
+    }
+    ,getCheckData: function(){ //获取选中数据
+      var checkStatus = table.checkStatus('LAY-app-content-tags')
+              ,data = checkStatus.data;
+      arr = new Array();;
+      for(var i = 0;i<data.length;i++){
+        arr.push(data[i]['id']);
+      }
+      arr.join(",");
+      if(Number(data.length)){
+        // layer.alert(JSON.stringify(arr));
+        admin.popup({
+          title: '修改分组'
+          ,area: ['60%', '400px']
+          ,id: 'LAY-popup-content-tags'
+          ,success: function(layero, index){
+            view(this.id).render('member/tagsformg',brand).done(function(){
+              form.render(null, 'layuiadmin-form-tags');
+              var demo2;
+              //全部分组
+              $.ajax({
+                url:layui.setter.www_NAME+'/admin/getMemberGroupListAll',
+                type:'get',
+                beforeSend:function(){
+                  loading = layer.load();
+                },success:function(res){
+                  demo2 = xmSelect.render({
+                    el: '#group_id',
+                    toolbar:{
+                      show: true,
+                    },
+                    initValue: '',
+                    language: 'zn',
+                    data: res.data
+                  })
+                },complete:function(){
+                  layer.close(loading);
+                }
+              })
+              //监听提交
+              form.on('submit(layuiadmin-app-tags-submit)', function(data){
+                var selectArr2 = demo2.getValue();
+                var group_id='';
+                layui.each(selectArr2,function(index,item){
+                  if(selectArr2.length-1 != index){
+                    group_id +=item.value+','
+                  }else{
+                    group_id +=item.value
+                  }
+                })
+                data.field.m_group= group_id
+                var field = data.field; //获取提交的字段
+                data.field.ids =arr
+                //提交 Ajax 成功后，关闭当前弹层并重载表格
+                $.ajax({
+                  url:'/admin/MemberGroupsetGroup',
+                  type:'post',
+                  data:field,
+                  beforeSend:function(){
+                    loading = layer.load();
+                  },success:function(res){
+                    if(!res.code){
+                      layer.msg(res.msg,{time:2000},function(){
+                        if(res.success){
+                          layui.table.reload('LAY-app-content-tags'); //重载表格
+                          layer.close(index); //执行关闭
+                        }
+                      })
+                    }else{
+                      layer.msg(res.msg,{time:2000});
+                    }
+                  },complete:function(){
+                    layer.close(loading);
+                  }
+                })
+              });
+            });
+          }
+        });
+      }else{
+        layer.msg('请选择用户');
+      }
+    }
+  }
+  upload.render({ //允许上传的文件后缀
+    elem: '#test4'
+    ,url: '/admin/ImportUser' //改成您自己的上传接口
+    ,accept: 'file' //普通文件
+    ,exts: 'xlsx|xls' //只允许上传excel
+    ,done: function(res){
+      if (res.code > 0) {
+        return layer.msg(res.msg);
+      }
+      //上传成功
+      layer.msg(res.msg,{time:1000},function(){
+        if(res.success){
+          layui.table.reload('LAY-app-content-tags'); //重载表格
+        }
+      })
+    }
+  });
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('#downmoban').on('click',function () {
+    // layer.msg('下载吧');
+  })
+  //部门职位
+  selfajax.ajax('/admin/getMemberDpListAll','get','', function(res){
+    console.log(res);
+    var bid=$(" input[ name='braid' ] ").val();
+    brand=res.data
+    $("#department").html('<option value="0">请选择公司</option>');
+    $.each(brand, function (key, val) {
+      if(bid==val.id){
+        var option1 = $("<option selected>").val(val.id).text(val.name);
+      }else{
+        var option1 = $("<option>").val(val.id).text(val.name);
+      }
+      //通过LayUI.jQuery添加列表项
+      $("#department").append(option1);
+    });
+    layui.form.render('select');
+  },'',function(){
+    loading = layer.load();
+  },function () {
+    layer.close(loading);
+  });
+  //职位
+  form.on('select(department)', function(data){
+    selfajax.ajax('/admin/getMemberDpListAll','get',{pid:data.value}, function(res){
+      brand=res.data
+      $("#position").html('<option value="0">请选择部门</option>');
+      $.each(brand, function (key, val) {
+        var option1 = $("<option>").val(val.id).text(val.name);
+        //通过LayUI.jQuery添加列表项
+        $("#position").append(option1);
+      });
+      layui.form.render('select');
+    }, '',function(){
+      loading = layer.load();
+    },function () {
+      layer.close(loading);
+    });
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px;" src= {{ d.image }}>
+</script>

@@ -1,0 +1,75 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item">
+    <label class="layui-form-label">商品名称</label>
+    <div class="layui-input-inline" style="line-height: 38px;height: 38px;">
+      <script type="text/html" template>
+        {{ d.params.good_name || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">原始估价</label>
+    <div class="layui-input-inline" style="line-height: 38px;height: 38px;">
+      <script type="text/html" template>
+        {{ d.params.price || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">是否已发放</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+      <input type="checkbox" name="is_fp" lay-skin="switch" lay-text="是|否">
+      </script>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use('upload', function() {
+    var $ = layui.jquery
+            , upload = layui.upload;
+    //普通图片上传
+    var uploadInst = upload.render({
+      elem: '#test1'
+      , url: layui.setter.api_host+'upload'
+      , before: function (obj) {
+        //预读本地文件示例，不支持ie8
+        obj.preview(function (index, file, result) {
+          $('#demo1').attr('src', result); //图片链接（base64）
+        });
+      }
+      , done: function (res) {
+        console.log(res);
+        //如果上传失败
+        if (res.code > 0) {
+          return layer.msg('上传失败');
+        }
+        //上传成功
+        layer.msg(res.msg,{time:1000},function(){
+          if(res.success){
+            $('input[name="image"]').val(res.data.url);
+            // $('.banner_image').attr('src',res.data.url);
+          }
+        })
+      }
+      , error: function () {
+        //演示失败状态，并实现重传
+        var demoText = $('#demoText');
+        demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+        demoText.find('.demo-reload').on('click', function () {
+          uploadInst.upload();
+        });
+      }
+    });
+  });
+  </script>

@@ -1,0 +1,179 @@
+
+
+<title>订单管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    /*height: 67px;*/
+    white-space: normal;
+  }
+  .layui-form-label {
+    width: 60px;
+  }
+  #select-head-img {
+    width: 100%;
+    height: 500px;
+    display: none;
+  }
+
+  .select-head-img {
+    width: 100%;
+    height: 500px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .select-head-img li {
+    width: 100%;
+    max-height: 400px;
+    margin: 10px 0;
+    text-align: center;
+  }
+
+  .select-head-img li > img {
+    width: 300px;
+    max-height: 400px;
+  }
+
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>订单管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list" >
+      <div class="layui-form-item">
+        <div class="layui-inline">
+          <label class="layui-form-label">时间区间</label>
+          <div class="layui-inline" id="date-during">
+            <div class="layui-input-inline">
+              <input type="text" name="start_date" autocomplete="off" id="test-startDate-1" class="layui-input" placeholder="开始日期">
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline">
+              <input type="text" name="end_date" autocomplete="off" id="test-endDate-1" class="layui-input" placeholder="结束日期">
+            </div>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">状态</label>
+          <div class="layui-input-inline">
+            <select name="status" id="status" lay-filter="status">
+              <option value="0">选择状态</option>
+              <option value="1">待质检</option>
+              <option value="2">待确认</option>
+              <option value="3">已完成</option>
+            </select>
+          </div>
+        </div>
+        <div class="layui-inline">
+          <label class="layui-form-label">订单号</label>
+          <div class="layui-input-inline">
+            <input type="text" name="order_sn" id="order_sn" placeholder="请输入订单号" autocomplete="off" class="layui-input">
+          </div>
+        </div>
+      <div class="layui-inline">
+        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+          <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+        </button>
+      </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+<!--          <button class="layui-btn" lay-event="add">添加</button>-->
+          <button class="layui-btn" lay-event="exportAllData">导出所有数据</button>
+        </div>
+      </script>
+      <table id="LAY-app-content-tags" lay-filter="LAY-app-content-tags"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        {{# if(d.is_send==1){ }}
+        <a class="layui-btn layui-btn-primary layui-btn-xs" lay-event="detail">查看寄送信息</a>
+        {{# } }}
+        {{# if(d.status!=3){ }}
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>修改订单</a>
+        {{# } }}
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+<div id="select-head-img">
+  <ul class="select-head-img">
+    <li>
+    </li>
+  </ul>
+</div>
+<script src="/static/js/xm-select.js"></script>
+<script>
+layui.use('order', layui.factory('order')).use(['admin', 'order', 'table','upload','selfajax','laydate'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,laydate = layui.laydate
+  ,form = layui.form;
+
+  laydate.render({
+    elem: '#date-during'
+    //设置开始日期、日期日期的 input 选择器
+    //数组格式为 2.6.6 开始新增，之前版本直接配置 true 或任意分割字符即可
+    ,range: ['#test-startDate-1', '#test-endDate-1']
+  });
+
+  form.render();
+
+  var active = {
+    getCheckData: function(){
+      var checkStatus = table.checkStatus('LAY-app-content-tags')
+              ,data = checkStatus.data;
+      arr = new Array();;
+      for(var i = 0;i<data.length;i++){
+        arr.push(data[i]['id']);
+      }
+      arr.join(",");
+
+    }
+  };
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('#downmoban').on('click',function () {
+    // layer.msg('下载吧');
+  })
+  //职位
+  form.on('select(department)', function(data){
+    selfajax.ajax('getMemberDpListAll','get',{pid:data.value}, function(res){
+      brand=res.data
+      $("#position").html('<option value="0">请选择部门</option>');
+      $.each(brand, function (key, val) {
+        var option1 = $("<option>").val(val.id).text(val.name);
+        //通过LayUI.jQuery添加列表项
+        $("#position").append(option1);
+      });
+      layui.form.render('select');
+    }, '',function(){
+      loading = layer.load();
+    },function () {
+      layer.close(loading);
+    });
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 25px;" src= {{ d.image }}>
+</script>

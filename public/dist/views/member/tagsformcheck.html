@@ -1,0 +1,33 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">原因</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入审核不通过原因" name="reason" class="layui-textarea">{{ d.params.reason || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">审核转态</label>
+    <div class="layui-input-block">
+      <input type="checkbox" name="status" lay-skin="switch" lay-text="通过|不通过">
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use('upload', function() {
+    var $ = layui.jquery
+            , upload = layui.upload;
+
+  });
+  </script>

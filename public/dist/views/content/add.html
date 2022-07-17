@@ -1,0 +1,249 @@
+<title>内容管理</title>
+<style>
+    .layui-table-cell{
+        height: auto!important;
+        white-space: normal;
+    }
+</style>
+<div class="layui-card layadmin-header">
+    <div class="layui-breadcrumb" lay-filter="breadcrumb">
+        <a lay-href="">主页</a>
+        <a><cite>应用</cite></a>
+        <a><cite>内容项目</cite></a>
+    </div>
+</div>
+
+<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-body">
+         <div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+             <form id="sysmenuForm" lay-filter="menuForm" class="layui-form model-form " style="margin-top: 20px;">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">名称</label>
+                    <div class="layui-input-inline">
+                        <input type="text" name="title" value="" lay-verify="required" placeholder="请输入项目名称" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                 <div class="layui-form-item">
+                     <label class="layui-form-label">数量1</label>
+                     <div class="layui-input-inline">
+                         <input type="number" name="num1" value="" lay-verify="required" placeholder="请输入数量1" autocomplete="off" class="layui-input">
+                     </div>
+                 </div>
+                 <div class="layui-form-item">
+                     <label class="layui-form-label">数量2</label>
+                     <div class="layui-input-inline">
+                         <input type="number" name="num2" value="" lay-verify="required" placeholder="请输入数量2" autocomplete="off" class="layui-input">
+                     </div>
+                 </div>
+                 <div class="layui-form-item">
+                     <label class="layui-form-label">数量3</label>
+                     <div class="layui-input-inline">
+                         <input type="number" name="num3" value="" lay-verify="required" placeholder="请输入数量3" autocomplete="off" class="layui-input">
+                     </div>
+                 </div>
+
+                 <div class="layui-form-item">
+                     <label class="layui-form-label">logo</label>
+                     <div class="layui-input-inline">
+                         <div class="layui-upload">
+                             <button type="button" class="layui-btn" id="test">logo</button>
+                             <input type="hidden" name="image" value="">
+                             <div class="layui-upload-list">
+                                 <script type="text/html" template>
+                                     <img class="layui-upload-img" id="demo" src="{{ d.params.logo|| '/upload/timg.jpg'}}">
+                                     <input type="hidden" name="logo" value="{{ d.params.logo || '' }}" class="layui-input">
+                                 </script>
+                                 <p id="demoText"></p>
+                             </div>
+                         </div>
+                     </div>
+                 </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">缩略图</label>
+                    <div class="layui-input-inline">
+                        <div class="layui-upload">
+                            <button type="button" class="layui-btn" id="test1">上传缩略图</button>
+                            <input type="hidden" name="image" value="">
+                            <div class="layui-upload-list">
+                                <script type="text/html" template>
+                                    <img class="layui-upload-img" id="demo1" src="{{ d.params.image|| '/upload/timg.jpg'}}">
+                                    <input type="hidden" name="image" value="{{ d.params.image || '' }}" class="layui-input">
+                                </script>
+                                <p id="demoText1"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">开始时间</label>
+                    <div class="layui-input-inline">
+                            <input type="text" name="start_time"  value="" id="date" lay-verify="date" placeholder="yyyy-MM-dd" autocomplete="off" class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">简介</label>
+                    <div class="layui-input-block">
+                        <script type="text/html" template>
+                            <textarea placeholder="请输入内容"  name="description" class="layui-textarea">{{ d.params.description || '' }}</textarea>
+                        </script>
+                    </div>
+                </div>
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label">详情</label>
+                    <div class="layui-input-block">
+
+                    <textarea placeholder="请输入内容" id="mytextarea" name="content"   class="layui-textarea">
+                      <script type="text/html" template  > <span> {{ d.params.content || '' }}</span> </script>
+                    </textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">排序</label>
+                    <div class="layui-input-inline">
+                        <script type="text/html" template >
+                            <input type="number" name="sort" value="{{ d.params.sort || '' }}" lay-verify="required" placeholder="请输入排序" autocomplete="off" class="layui-input">
+                        </script>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+            <label class="layui-form-label"></label>
+            <div class="layui-input-inline">
+                <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+            </div>
+        </div>
+            </form>
+      </div>
+     </div>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layedit', 'laydate','jquery','upload','tinymce', 'util', 'layer','selfajax'], function() {
+        var $ = layui.jquery
+            ,form = layui.form
+            ,layer = layui.layer
+            ,layedit = layui.layedit
+            ,laydate = layui.laydate
+            ,selfajax = layui.selfajax
+            ,tinymce = layui.tinymce
+            ,util = layui.util
+            ,upload = layui.upload;
+        form.render();
+        var edit = tinymce.render({
+            elem: "#mytextarea"
+            , height: 600
+            , images_upload_url:'/admin/abundantUpload'
+        });
+        var uploadInst = upload.render({
+            elem: '#test'
+            , url: layui.setter.www_NAME+'/admin/upload'
+            ,auto: false
+            ,choose: function(obj){  //上传前选择回调方法
+                var flag = true;
+                obj.preview(function(index, file, result){
+                    console.log(file);            //file表示文件信息，result表示文件src地址
+                    var img = new Image();
+                    img.src = result;
+                    img.onload = function () { //初始化夹在完成后获取上传图片宽高，判断限制上传图片的大小。
+                        // if(img.width ==184 && img.height ==236){
+                        obj.upload(index, file); //满足条件调用上传方法
+                        // }else{
+                        //     flag = false;
+                        //     layer.msg('上传的图片大小必须是184*236')
+                        //     return false;
+                        // }
+                    }
+                    return flag;
+                });
+            }
+            , done: function (res) {
+                console.log(res);
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                layer.msg(res.msg,{time:1000},function(){
+                    if(res.success){
+                        $('input[name="logo"]').val(res.data.url);
+                        $('#demo').attr('src',res.data.url);
+                    }
+                })
+            }
+            , error: function () {
+                layer.msg('上传失败,请联系管理员');
+            }
+
+        });
+        //普通图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            , url: layui.setter.www_NAME+'/admin/upload'
+            ,auto: false
+            ,choose: function(obj){  //上传前选择回调方法
+                var flag = true;
+                obj.preview(function(index, file, result){
+                    console.log(file);            //file表示文件信息，result表示文件src地址
+                    var img = new Image();
+                    img.src = result;
+                    img.onload = function () { //初始化夹在完成后获取上传图片宽高，判断限制上传图片的大小。
+                        // if(img.width ==184 && img.height ==236){
+                            obj.upload(index, file); //满足条件调用上传方法
+                        // }else{
+                        //     flag = false;
+                        //     layer.msg('上传的图片大小必须是184*236')
+                        //     return false;
+                        // }
+                    }
+                    return flag;
+                });
+            }
+            , done: function (res) {
+                console.log(res);
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                layer.msg(res.msg,{time:1000},function(){
+                    if(res.success){
+                        $('input[name="image"]').val(res.data.url);
+                        $('#demo1').attr('src',res.data.url);
+                    }
+                })
+            }
+            , error: function () {
+                layer.msg('上传失败,请联系管理员');
+            }
+
+        });
+
+        //日期
+        laydate.render({
+            elem: '#date'
+        });
+        form.on('submit(layuiadmin-app-tags-submit)', function(data){
+
+            data.field.content = edit.getContent();
+            var field = data.field; //获取提交的字段
+            //提交 Ajax 成功后，关闭当前弹层并重载表格
+            selfajax.ajax('/admin/ContentAdd','post',field, function(res){
+                if(!res.code){
+                    layer.msg(res.msg,{time:2000},function(){
+                        if(res.success){
+                            // layui.table.reload('LAY-app-content-tags'); //重载表格
+                            // layer.close(index); //执行关闭
+                            location.hash = '/content/manage';
+                        }
+                    })
+                }else{
+                    layer.msg(res.msg,{time:2000});
+                }
+            },'',function(){
+                loading = layer.load();
+            },function () {
+                layer.close(loading);
+            });
+        });
+    });
+</script>

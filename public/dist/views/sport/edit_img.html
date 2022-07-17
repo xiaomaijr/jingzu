@@ -1,0 +1,92 @@
+<style>
+    .layui-upload-img{
+        max-width: 300px;
+    }
+</style>
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+
+    <div class="layui-form-item">
+        <label class="layui-form-label">图片</label>
+        <div class="layui-input-inline">
+            <div class="layui-upload">
+                <button type="button" class="layui-btn" id="test1">上传图片<text>(345*150)</text></button>
+                <input type="hidden" name="image" value="">
+                <div class="layui-upload-list">
+                    <script type="text/html" template>
+                    <img class="layui-upload-img" id="demo1" src="{{ d.params.image|| '/upload/timg.jpg'}}">
+                    <input type="hidden" name="image" value="{{ d.params.image || '' }}" class="layui-input">
+                    <p id="demoText1"></p>
+                    </script>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label">排序</label>
+        <div class="layui-input-inline">
+            <script type="text/html" template >
+                <input type="number" name="sort" value="{{ d.params.sort || '' }}" lay-verify="required" placeholder="请输入排序" autocomplete="off" class="layui-input">
+            </script>
+        </div>
+    </div>
+    <script type="text/html" template>
+        <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+    </script>
+    <div class="layui-form-item">
+        <label class="layui-form-label"></label>
+        <div class="layui-input-inline">
+            <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+        </div>
+    </div>
+</div>
+<script>
+    layui.use(['form', 'layedit', 'laydate','jquery','upload','tinymce', 'util', 'layer','selfajax'], function() {
+        var $ = layui.jquery
+            ,form = layui.form
+            ,layer = layui.layer
+            ,laydate = layui.laydate
+            ,upload = layui.upload;
+        //详情图片上传
+        var uploadInst = upload.render({
+            elem: '#test1'
+            , url: layui.setter.api_host+'upload'
+            ,auto: false
+            ,choose: function(obj){  //上传前选择回调方法
+                var flag = true;
+                obj.preview(function(index, file, result){
+                    console.log(file);            //file表示文件信息，result表示文件src地址
+                    var img = new Image();
+                    img.src = result;
+                    img.onload = function () { //初始化夹在完成后获取上传图片宽高，判断限制上传图片的大小。
+                        // if(img.width ==690 && img.height ==270){
+                        obj.upload(index, file); //满足条件调用上传方法
+                        // }else{
+                        //   flag = false;
+                        //   layer.msg('上传的图片大小必须是690*270')
+                        //   return false;
+                        // }
+                    }
+                    return flag;
+                });
+            }
+            , done: function (res) {
+                console.log(res);
+                //如果上传失败
+                if (res.code > 0) {
+                    return layer.msg('上传失败');
+                }
+                //上传成功
+                layer.msg(res.msg,{time:1000},function(){
+                    if(res.success){
+                        $('input[name="image"]').val(res.data.url);
+                        $('#demo1').attr('src',res.data.url);
+                    }
+                })
+            }
+            , error: function () {
+                layer.msg('上传失败,请联系管理员');
+            }
+        });
+        form.render();
+    });
+</script>

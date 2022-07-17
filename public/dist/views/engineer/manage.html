@@ -1,0 +1,146 @@
+
+
+<title>用户管理</title>
+<style>
+  .layui-table-cell{
+    /*height: auto!important;*/
+    /*height: 67px;*/
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>RRPS管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-form layui-card-header layuiadmin-card-header-auto" lay-filter="app-content-list" >
+      <div class="layui-form-item">
+<!--        <div class="layui-inline">-->
+<!--          <label class="layui-form-label">公司</label>-->
+<!--          <div class="layui-input-inline">-->
+<!--          <select name="department" id="department" lay-filter="department">-->
+<!--          </select>-->
+<!--          </div>-->
+<!--          <div class="layui-input-inline">-->
+<!--            <select name="position" id="position" lay-filter="position">-->
+<!--            </select>-->
+<!--          </div>-->
+<!--        </div>-->
+      <div class="layui-inline">
+        <label class="layui-form-label">真实姓名</label>
+        <div class="layui-input-inline">
+          <input type="text" name="realname" id="realname" placeholder="请输入用户名" autocomplete="off" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-inline">
+        <label class="layui-form-label">邮箱</label>
+        <div class="layui-input-inline">
+          <input type="text" name="email" id="email" placeholder="请输入邮箱"  autocomplete="off" class="layui-input">
+        </div>
+      </div>
+      <div class="layui-inline">
+        <button class="layui-btn layuiadmin-btn-list" lay-submit lay-filter="LAY-app-contlist-search">
+          <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+        </button>
+      </div>
+      </div>
+    </div>
+    <div class="layui-card-body">
+      <script type="text/html" id="toolbarDemo">
+        <div class="layui-btn-container">
+<!--          <button class="layui-btn" lay-event="add">添加</button>-->
+<!--          <button class="layui-btn" lay-event="exportAllData">导出所有数据</button>-->
+        </div>
+      </script>
+      <table id="LAY-app-content-tags" lay-filter="LAY-app-content-tags"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+<script src="/static/js/xm-select.js"></script>
+<script>
+layui.use('engineer', layui.factory('engineer')).use(['admin', 'engineer', 'table','upload','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,form = layui.form;
+
+  form.render();
+
+  var active = {
+    getCheckData: function(){
+      var checkStatus = table.checkStatus('LAY-app-content-tags')
+              ,data = checkStatus.data;
+      arr = new Array();;
+      for(var i = 0;i<data.length;i++){
+        arr.push(data[i]['id']);
+      }
+      arr.join(",");
+
+    }
+  };
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  $('#downmoban').on('click',function () {
+    // layer.msg('下载吧');
+  })
+  //公司部门
+  selfajax.ajax('getMemberDpListAll','get',{}, function(res){
+    console.log(res);
+    var bid=$(" input[ name='braid' ] ").val();
+    brand=res.data
+    $("#department").html('<option value="0">请选择公司</option>');
+    $.each(brand, function (key, val) {
+      if(bid==val.id){
+        var option1 = $("<option selected>").val(val.id).text(val.name);
+      }else{
+        var option1 = $("<option>").val(val.id).text(val.name);
+      }
+      //通过LayUI.jQuery添加列表项
+      $("#department").append(option1);
+    });
+    layui.form.render('select');
+  },'',function(){
+    loading = layer.load();
+  },function () {
+    layer.close(loading);
+  });
+  //职位
+  form.on('select(department)', function(data){
+    selfajax.ajax('getMemberDpListAll','get',{pid:data.value}, function(res){
+      brand=res.data
+      $("#position").html('<option value="0">请选择部门</option>');
+      $.each(brand, function (key, val) {
+        var option1 = $("<option>").val(val.id).text(val.name);
+        //通过LayUI.jQuery添加列表项
+        $("#position").append(option1);
+      });
+      layui.form.render('select');
+    }, '',function(){
+      loading = layer.load();
+    },function () {
+      layer.close(loading);
+    });
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 25px;" src= {{ d.image }}>
+</script>

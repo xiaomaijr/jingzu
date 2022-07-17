@@ -1,0 +1,48 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item" id="title">
+    <label class="layui-form-label">标题</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <input type="text" name="title" value="{{ d.params.title || '' }}" placeholder="请输入标题" autocomplete="off" class="layui-input">
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item" id="description">
+    <label class="layui-form-label">消息</label>
+    <div class="layui-input-block" style=" padding-top: 7px;">
+      <script type="text/html" template>
+        {{ d.params.description || '' }}
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">内容</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入简介" disabled  id="mytextarea" name="description" class="layui-textarea"></textarea>
+      </script>
+    </div>
+  </div>
+
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.aid || '' }}" class="layui-input">
+    <input type="hidden" name="pid" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="提交" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form','upload','upload','tinymce'], function() {
+    var $ = layui.jquery
+            ,form = layui.form
+            ,tinymce = layui.tinymce
+            , upload = layui.upload;
+
+    form.render();
+  });
+  </script>

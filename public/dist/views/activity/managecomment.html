@@ -1,0 +1,133 @@
+
+<title>话题管理</title>
+<style>
+  .layui-table-cell{
+    height: auto!important;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>评论管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+<!--    <div class="layui-card-header layuiadmin-card-header-auto">-->
+<!--      <button class="layui-btn layuiadmin-btn-tags" data-type="add">回复</button>-->
+<!--    </div>-->
+    <div class="layui-card-body">
+<!--      <div class="layui-btn-group demoTable">-->
+<!--        <button class="layui-btn" data-type="getCheckData">批量上架</button>-->
+<!--        <button class="layui-btn" data-type="getCheckLength">批量下架</button>-->
+<!--      </div>-->
+      <table id="LAY-app-content-comm" lay-filter="LAY-app-content-comm"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+          {{# if(d.status ==1){ }}
+          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="toexam"><i class="layui-icon layui-icon-edit"></i>审核</a>
+          {{# } else if(d.status ==0&&d.pid==0) { }}
+<!--          <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="toreplay"><i class="layui-icon layui-icon-edit"></i>回复</a>-->
+          {{# } else { }}
+          {{# } }}
+<!--        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>-->
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('activity', layui.factory('activity')).use(['admin', 'activity', 'table','tinymce','upload','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,tinymce = layui.tinymce
+  ,router = layui.router()
+  ,selfajax = layui.selfajax
+  ,upload = layui.upload
+  ,form = layui.form;
+    var id = router.search.aid
+  var active = {
+    add: function(){
+      admin.popup({
+        title: '回复'
+          ,area: ['60%', '500px']
+          ,id: 'LAY-popup-content-comm'
+        ,success: function(layero, index){
+          view(this.id).render('topic/tagsformreply').done(function(){
+              form.render(null, 'layuiadmin-form-comment');
+              var edit = tinymce.render({
+                  elem: "#mytextarea"
+                  , height: 300
+                  , images_upload_url:'/admin/abundantUpload'
+                  ,plugins : 'emoticons'
+                  ,font_formats: '幼圆=YouYuan;隶书=LiSu;楷体=楷体;华康新综艺体W9=华康新综艺体W9,华康新综艺体W9(P);方正楷体简体=方正清刻本悦宋简体;微软雅黑=Microsoft YaHei,Helvetica Neue,PingFang SC,sans-serif;苹果苹方=PingFang SC,Microsoft YaHei,sans-serif;宋体=simsun,serif,宋体,新宋体;仿宋体=FangSong,serif;黑体=SimHei,sans-serif;Arial=arial,helvetica,sans-serif;Arial Black=arial black,avant garde;Book Antiqua=book antiqua,palatino;'
+              });
+              $('#description').hide();
+              $('#title').hide();
+            //监听提交
+              form.on('submit(layuiadmin-app-tags-submit)', function(data){
+                  data.field.description = edit.getContent();
+                  data.field.id=id;
+                  var field = data.field; //获取提交的字段
+                  selfajax.ajax('/admin/TopicreplyByAdmin','post',field, function(res){
+                      if(!res.code){
+                          layer.msg(res.msg,{time:2000},function(){
+                              if(res.success){
+                                  layui.table.reload('LAY-app-content-comm'); //重载表格
+                                  layer.close(index); //执行关闭
+                              }
+                          })
+                      }else{
+                          layer.msg(res.msg,{time:2000});
+                      }
+                  }, '',function(){
+                      loading = layer.load();
+                  },function () {
+                      layer.close(loading);
+                  });
+              });
+          });
+        }
+      });
+    }
+    ,getCheckData: function(){ //获取选中数据
+      var ids = [];
+      $.each($("input[name=siam_one]:checked"), function (i, value) {
+        ids[i] = $(this).attr("data-id");  // 如果需要获取其他的值 需要在模板中把值放到属性中 然后这里就可以拿到了
+      });
+      layer.alert(JSON.stringify(ids));
+    }
+  }
+  $('.layui-btn.layuiadmin-btn-tags,.demoTable .layui-btn').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+  form.on("checkbox(siam_all)", function () {
+    var status = $(this).prop("checked");
+    $.each($("input[name=siam_one]"), function (i, value) {
+      $(this).prop("checked", status);
+    });
+    form.render();
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.image }}>
+</script>
+<script type="text/html" id="buttonTpl">
+  {{#  if(d.top){ }}
+  <button class="layui-btn layui-btn-xs">已置顶</button>
+  {{#  } else { }}
+  <button class="layui-btn layui-btn-primary layui-btn-xs">正常显示</button>
+  {{#  } }}
+</script>
+<script type="text/html" id="checkbd">
+  {{#  if (d.id === 2){ }}
+  <input type="checkbox" name="siam_one" title="" lay-skin="primary" data-id = "{{ d.id }}">
+  {{#  } }}
+</script>

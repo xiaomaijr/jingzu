@@ -1,0 +1,61 @@
+
+<title>协议管理</title>
+<style>
+  .layui-table-cell{
+    height: auto!important;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>协议管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+<!--    <div class="layui-card-header layuiadmin-card-header-auto">-->
+<!--      <button class="layui-btn layuiadmin-btn-tags" data-type="add">添加</button>-->
+<!--    </div>-->
+    <div class="layui-card-body">
+      <table id="LAY-app-content-tags-agreement" lay-filter="LAY-app-content-tags-agreement"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+<!--        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>-->
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('content', layui.factory('content')).use(['admin', 'content', 'table','jquery','upload','laydate','tinymce'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,upload = layui.upload
+  ,tinymce = layui.tinymce
+  ,form = layui.form;
+  var edit = tinymce.render({
+    elem: "#mytextarea"
+    , height: 600
+  });
+  var active = {
+    add: function(){
+      location.hash = '/content/add';
+    }
+  }
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.logo }}>
+</script>
+<script type="text/html" id="imgTpl1">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.image }}>
+</script>

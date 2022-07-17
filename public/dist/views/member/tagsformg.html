@@ -1,0 +1,46 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item">
+    <label class="layui-form-label">会员级别</label>
+    <div class="layui-input-block">
+      <div id="group_id" ></div>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['upload','selfajax'], function() {
+    var $ = layui.jquery
+            ,selfajax = layui.selfajax
+            , upload = layui.upload;
+    //部门职位
+    selfajax.ajax('/admin/getMemberGroupListAll','get','', function(res){
+      console.log(res);
+      var bid=$(" input[ name='braid' ] ").val();
+      brand=res.data
+      $("#m_group").html('<option value="0">请选择分组</option>');
+      $.each(brand, function (key, val) {
+        if(bid==val.id){
+          var option1 = $("<option selected>").val(val.value).text(val.name);
+        }else{
+          var option1 = $("<option>").val(val.value).text(val.name);
+        }
+        //通过LayUI.jQuery添加列表项
+        $("#m_group").append(option1);
+      });
+      layui.form.render('select');
+    },'',function(){
+      loading = layer.load();
+    },function () {
+      layer.close(loading);
+    });
+  });
+  </script>

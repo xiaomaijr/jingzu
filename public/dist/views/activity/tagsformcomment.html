@@ -1,0 +1,134 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+<!--  <div class="layui-form-item">-->
+<!--    <label class="layui-form-label">标题</label>-->
+<!--    <div class="layui-input-inline">-->
+<!--      <script type="text/html" template>-->
+<!--        <input type="text" name="title" id="title" disabled value="{{d.params.title || '' }}" placeholder="" autocomplete="off" class="layui-input">-->
+<!--      </script>-->
+<!--    </div>-->
+<!--  </div>-->
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">详情</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入简介" disabled id="mytextarea" name="description" class="layui-textarea">{{ d.params.description || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item layui-form-text">
+    <label class="layui-form-label">原因</label>
+    <div class="layui-input-block">
+      <script type="text/html" template>
+        <textarea placeholder="请输入审核不通过原因" name="reason" class="layui-textarea">{{ d.params.reason || '' }}</textarea>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">审核转态</label>
+    <div class="layui-input-block">
+      <input type="checkbox" name="status" lay-skin="switch" lay-text="通过|不通过">
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="提交" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use(['form','upload','upload','tinymce'], function() {
+    var $ = layui.jquery
+            ,form = layui.form
+            ,tinymce = layui.tinymce
+            , upload = layui.upload;
+
+    form.render();
+
+    //普通图片上传
+    var uploadInst = upload.render({
+      elem: '#test1'
+      , url: layui.setter.www_NAME+'/admin/upload'
+      , before: function (obj) {
+        //预读本地文件示例，不支持ie8
+        obj.preview(function (index, file, result) {
+          $('#demo1').attr('src', result); //图片链接（base64）
+        });
+      }
+      , done: function (res) {
+        console.log(res);
+        //如果上传失败
+        if (res.code > 0) {
+          return layer.msg('上传失败');
+        }
+        //上传成功
+        layer.msg(res.msg,{time:1000},function(){
+          if(res.success){
+            $('input[name="image"]').val(res.data.url);
+            // $('.banner_image').attr('src',res.data.url);
+          }
+        })
+      }
+      , error: function () {
+        //演示失败状态，并实现重传
+        var demoText = $('#demoText');
+        demoText.html('<span style="color: #FF5722;">上传失败</span> <a class="layui-btn layui-btn-xs demo-reload">重试</a>');
+        demoText.find('.demo-reload').on('click', function () {
+          uploadInst.upload();
+        });
+      }
+    });
+    $.ajax({
+      url:layui.setter.www_NAME+'/admin/getCategoryAll',
+      type:'get',
+      beforeSend:function(){
+        loading = layer.load();
+      },success:function(res){
+        console.log(res);
+        var bid=$(" input[ name='ccid' ] ").val();
+        brand=res.data
+        $("#cid").html('<option value="0">全部分类</option>');
+        $.each(brand, function (key, val) {
+          if(bid==val.id){
+            var option1 = $("<option selected>").val(val.id).text(val.name);
+          }else{
+            var option1 = $("<option>").val(val.id).text(val.name);
+          }
+          //通过LayUI.jQuery添加列表项
+          $("#cid").append(option1);
+        });
+        layui.form.render('select');
+      },complete:function(){
+        layer.close(loading);
+      }
+    })
+    $.ajax({
+      url:layui.setter.www_NAME+'/admin/getLabelall',
+      type:'get',
+      beforeSend:function(){
+        loading = layer.load();
+      },success:function(res){
+        console.log(res);
+        var bid=$(" input[ name='llid' ] ").val();
+        brand=res.data
+        $("#lid").html('<option value="0">全部标签</option>');
+        $.each(brand, function (key, val) {
+          if(bid==val.id){
+            var option1 = $("<option selected>").val(val.id).text(val.name);
+          }else{
+            var option1 = $("<option>").val(val.id).text(val.name);
+          }
+          //通过LayUI.jQuery添加列表项
+          $("#lid").append(option1);
+        });
+        layui.form.render('select');
+      },complete:function(){
+        layer.close(loading);
+      }
+    })
+  });
+  </script>

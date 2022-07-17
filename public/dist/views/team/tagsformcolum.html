@@ -1,0 +1,166 @@
+
+<div class="layui-form" lay-filter="layuiadmin-form-tags" id="layuiadmin-app-form-tags">
+  <div class="layui-form-item">
+    <label class="layui-form-label">分值</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <select name="min" >
+          <option value="100" {{ d.params.min==100?'selected':''}}>100</option>
+          <option value="80" {{ d.params.min==80?'selected':''}}>99-80</option>
+          <option value="60" {{ d.params.min==60?'selected':''}}>79-60</option>
+          <option value="40" {{ d.params.min==40?'selected':''}}>60-1</option>
+        </select>
+      </script>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">柱形图片</label>
+    <div class="layui-input-inline">
+      <div class="layui-upload">
+        <button type="button" class="layui-btn" id="test1">上传柱形图片(68*228)</button>
+        <input type="hidden" name="image" value="">
+        <div class="layui-upload-list">
+          <script type="text/html" template>
+            <img class="layui-upload-img" id="demo1" src="{{ d.params.image|| '/upload/timg.jpg'}}">
+            <input type="hidden" name="image" value="{{ d.params.image || '' }}" class="layui-input">
+          </script>
+          <p id="demoText"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="layui-form-item">
+    <label class="layui-form-label">队伍</label>
+    <div class="layui-input-inline">
+      <script type="text/html" template>
+        <input type="hidden" name="baid" value="{{ d.params.team_id}}">
+        <select name="team_id" lay-filter="team_id" id="team_id" >
+
+        </select>
+      </script>
+    </div>
+  </div>
+  <script type="text/html" template>
+    <input type="hidden" name="id" value="{{ d.params.id || '' }}" class="layui-input">
+  </script>
+  <div class="layui-form-item">
+    <label class="layui-form-label"></label>
+    <div class="layui-input-inline">
+      <input type="button" lay-submit lay-filter="layuiadmin-app-tags-submit" value="确认" class="layui-btn">
+    </div>
+  </div>
+</div>
+<script>
+  layui.use('upload', function() {
+    var $ = layui.jquery
+            , upload = layui.upload;
+
+    //普通图片上传
+    var uploadInst = upload.render({
+      elem: '#test1'
+      , url: layui.setter.www_NAME+'/admin/upload'
+      ,auto: false
+      ,choose: function(obj){  //上传前选择回调方法
+        var flag = true;
+        obj.preview(function(index, file, result){
+          console.log(file);            //file表示文件信息，result表示文件src地址
+          var img = new Image();
+          img.src = result;
+          img.onload = function () { //初始化夹在完成后获取上传图片宽高，判断限制上传图片的大小。
+            // if(img.width ==120 && img.height ==120){
+            obj.upload(index, file); //满足条件调用上传方法
+            // }else{
+            //   flag = false;
+            //   layer.msg('上传的图片大小必须是120*120')
+            //   return false;
+            // }
+          }
+          return flag;
+        });
+      }
+      , done: function (res) {
+        console.log(res);
+        //如果上传失败
+        if (res.code > 0) {
+          return layer.msg('上传失败');
+        }
+        //上传成功
+        layer.msg(res.msg,{time:1000},function(){
+          if(res.success){
+            $('input[name="image"]').val(res.data.url);
+            $('#demo1').attr('src',res.data.url);
+          }
+        })
+      }
+      , error: function () {
+        layer.msg('上传失败,请联系管理员');
+      }
+    });
+    //普通图片上传
+    var uploadInst = upload.render({
+      elem: '#test2'
+      , url: layui.setter.www_NAME+'/admin/upload'
+      ,auto: false
+      ,choose: function(obj){  //上传前选择回调方法
+        var flag = true;
+        obj.preview(function(index, file, result){
+          console.log(file);            //file表示文件信息，result表示文件src地址
+          var img = new Image();
+          img.src = result;
+          img.onload = function () { //初始化夹在完成后获取上传图片宽高，判断限制上传图片的大小。
+            // if(img.width ==120 && img.height ==120){
+            obj.upload(index, file); //满足条件调用上传方法
+            // }else{
+            //   flag = false;
+            //   layer.msg('上传的图片大小必须是120*120')
+            //   return false;
+            // }
+          }
+          return flag;
+        });
+      }
+      , done: function (res) {
+        console.log(res);
+        //如果上传失败
+        if (res.code > 0) {
+          return layer.msg('上传失败');
+        }
+        //上传成功
+        layer.msg(res.msg,{time:1000},function(){
+          if(res.success){
+            $('input[name="bigimage"]').val(res.data.url);
+            $('#demo2').attr('src',res.data.url);
+          }
+        })
+      }
+      , error: function () {
+        layer.msg('上传失败,请联系管理员');
+      }
+    });
+
+    $.ajax({
+      url:layui.setter.www_NAME+'/admin/getTeamall',
+      type:'get',
+      beforeSend:function(){
+        loading = layer.load();
+      },success:function(res){
+        console.log(res);
+        var bid=$(" input[ name='baid' ] ").val();
+        brand=res.data
+        $("#team_id").html('<option value="0">全部队伍</option>');
+        $.each(brand, function (key, val) {
+          if(bid==val.id){
+            var option1 = $("<option selected>").val(val.id).text(val.name);
+          }else{
+            var option1 = $("<option>").val(val.id).text(val.name);
+          }
+          //通过LayUI.jQuery添加列表项
+          $("#team_id").append(option1);
+        });
+        layui.form.render('select');
+      },complete:function(){
+        layer.close(loading);
+      }
+    })
+  });
+  </script>

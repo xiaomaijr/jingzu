@@ -1,0 +1,102 @@
+
+<title>分组管理</title>
+<style>
+  .layui-table-cell{
+    height: auto!important;
+    white-space: normal;
+  }
+</style>
+<div class="layui-card layadmin-header">
+  <div class="layui-breadcrumb" lay-filter="breadcrumb">
+    <a lay-href="">主页</a>
+    <a><cite>应用</cite></a>
+    <a><cite>分组管理</cite></a>
+  </div>
+</div>
+
+<div class="layui-fluid">
+  <div class="layui-card">
+    <div class="layui-card-header layuiadmin-card-header-auto">
+      <button class="layui-btn layuiadmin-btn-tags" data-type="add" id="title">
+        添加组
+      </button>
+    </div>
+    <div class="layui-card-body">
+      <table id="LAY-app-content-tags-group" lay-filter="LAY-app-content-tags-group"></table>
+      <script type="text/html" id="layuiadmin-app-cont-tagsbar">
+        <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i class="layui-icon layui-icon-edit"></i>编辑</a>
+        <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i class="layui-icon layui-icon-delete"></i>删除</a>
+      </script>
+    </div>
+  </div>
+</div>
+
+<script>
+layui.use('member', layui.factory('member')).use(['admin', 'member', 'table','tinymce','upload','selfajax'], function(){
+  var $ = layui.$
+  ,admin = layui.admin
+  ,view = layui.view
+  ,table = layui.table
+  ,tinymce = layui.tinymce
+  ,selfajax = layui.selfajax
+  ,router = layui.router()
+  ,upload = layui.upload
+  ,form = layui.form;
+
+  var id = router.search.pid
+  var level = router.search.level
+  console.log(id);
+  var active = {
+    add: function(){
+      admin.popup({
+        title: '添加'
+        ,area: ['30%', '400px']
+        ,id: 'LAY-popup-content-tags'
+        ,success: function(layero, index){
+          view(this.id).render('member/tagsformgroup').done(function(){
+            form.render(null, 'layuiadmin-form-tags');
+
+            //监听提交
+            form.on('submit(layuiadmin-app-tags-submit)', function(data){
+              data.field.pid =id
+              var field = data.field; //获取提交的字段
+              field.level=level;
+              //提交 Ajax 成功后，关闭当前弹层并重载表格
+              selfajax.ajax('/admin/MemberGroupAdd','post',field, function(res){
+                if(!res.code){
+                  layer.msg(res.msg,{time:2000},function(){
+                    if(res.success){
+                      layui.table.reload('LAY-app-content-tags-group'); //重载表格
+                      layer.close(index); //执行关闭
+                    }
+                  })
+                }else{
+                  layer.msg(res.msg,{time:2000});
+                }
+              }, '',function(){
+                loading = layer.load();
+              },function () {
+                layer.close(loading);
+              });
+            });
+          });
+        }
+      });
+    }
+  }
+  $('.layui-btn.layuiadmin-btn-tags').on('click', function(){
+    var type = $(this).data('type');
+    active[type] ? active[type].call(this) : '';
+  });
+});
+</script>
+<script type="text/html" id="imgTpl">
+  <img style="display: inline-block; width: 50px; height:50px;" src= {{ d.litpic }}>
+</script>
+<script type="text/html" id="buttonTpl">
+  {{#  if(d.top){ }}
+  <button class="layui-btn layui-btn-xs">已置顶</button>
+  {{#  } else { }}
+  <button class="layui-btn layui-btn-primary layui-btn-xs">正常显示</button>
+  {{#  } }}
+</script>
