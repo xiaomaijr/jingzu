@@ -7,7 +7,7 @@ use app\admin\middleware\Auth;
 
 Route::group('', function () {
     Route::post('login', 'admin/login/login');
-	Route::get('login/captcha', 'login/captcha');
+	Route::get('login/captcha', 'admin/login/captcha');
 	Route::get('login/checkTokenVaild', 'admin/login/checkTokenVaild');
     Route::post('checkSuperPassword', 'admin/login/checkSuperPassword');
 	Route::get('getUserInfo','admin/login/getUserInfo');

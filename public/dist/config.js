@@ -54,8 +54,8 @@ layui.define(['laytpl', 'layer', 'element', 'util'], function(exports){
       'echartsTheme', //echarts 主题
       'tinymce', //tinymce
     ]
-    ,api_host: 'https://jingzu.weimobile.cc/admin/'
-    ,static_host: 'https://jingzu.weimobile.cc/static'
+    ,api_host: 'https://app.jingzuwenhua.cn/admin/'
+    ,static_host: 'https://app.jingzuwenhua.cn/static'
 
     //主题配置
     ,theme: {
